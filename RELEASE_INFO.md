@@ -1,5 +1,5 @@
-# Echo Music v5.2.22
+# Echo Music v5.2.3
 
-- Fixed proxy settings dialog freezing the app on save.
-- Fixed overlapping play and library buttons on the artist page when a song is liked.
-- Aligned play and library button sizes on the artist page.
+- Added Discord Integration to the settings menu.
+- Fixed Discord Rich Presence not syncing by implementing automated token extraction via WebView.
+- Improved Discord Rich Presence to automatically update on song change, playback state changes, and setting modifications.

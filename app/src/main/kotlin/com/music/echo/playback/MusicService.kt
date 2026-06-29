@@ -2603,7 +2603,12 @@ class MusicService :
     }
 
     private fun ensurePresenceManager() {
-        if (DiscordPresenceManager.lastRpcStartTime != null && lastPresenceToken != null) return
+        if (DiscordPresenceManager.lastRpcStartTime != null && lastPresenceToken != null) {
+            if (dataStore.get(EnableDiscordRPCKey, true) && dataStore.get(DiscordTokenKey, "").isNotBlank()) {
+                DiscordPresenceManager.restart()
+            }
+            return
+        }
 
         scope.launch {
             if (!dataStore.get(EnableDiscordRPCKey, true)) {

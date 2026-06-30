@@ -1,5 +1,9 @@
 # Echo Music v5.2.3
 
+**Performance**
+- Improved playback startup speed by pre-warming JavaScript engine (CipherDeobfuscator) on app launch.
+- Reduced ExoPlayer's initial buffer threshold to 750ms for faster audio start.
+- Improved app startup time by moving Coil image cache size calculation to a non-blocking background thread.
 **ListenBrainz**
 - Moved ListenBrainz settings to the Account page, making the integration fully accessible and functional.
 - Fixed scrobbling by replacing fragile transition triggers with robust playback state tracking, pulling metadata directly from the ExoPlayer instance for newly streamed tracks, and adding app version headers to submission payloads.

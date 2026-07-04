@@ -11,7 +11,7 @@
   [![License](https://img.shields.io/github/license/iad1tya/Echo-Music?style=for-the-badge&color=28a745)](LICENSE)
   [![Telegram](https://img.shields.io/badge/Telegram-Join-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/EchoMusicApp)
   [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/EcfV3AxH5c)
-
+  [![Weblate](https://img.shields.io/weblate/progress/echo-music?server=https%3A%2F%2Fhosted.weblate.org&style=for-the-badge)](https://hosted.weblate.org/projects/echo-music/)
   
   <a href="https://trendshift.io/repositories/20485" target="_blank">
     <img src="https://trendshift.io/api/badge/repositories/20485" alt="EchoMusicApp%2FEcho-Music | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/>
@@ -51,6 +51,7 @@ Echo Music delivers a seamless, premium listening experience by leveraging YouTu
 - [Installation & Setup](#installation--setup)
   - [Android Installation](#android-installation)
   - [Building from Source](#building-from-source)
+- [Translations](#translations)
 - [Community & Support](#community--support)
 - [Support the Project](#support-the-project)
   - [Cryptocurrency](#cryptocurrency)
@@ -180,6 +181,16 @@ Download the latest pre-compiled APK from the [Releases Page](https://github.com
    ./gradlew assembleUniversalGmsDebug
    ```
    *(For optimized ARM64 builds, release builds, or other options, refer to [SETUP.md](SETUP.md))*
+
+---
+
+## Translations
+
+<h3>We use Weblate to translate Echo Music. <a href="https://hosted.weblate.org/projects/echo-music/">Help us bring Echo Music to more people!</a></h3>
+
+<a href="https://hosted.weblate.org/projects/echo-music/">
+  <img src="https://hosted.weblate.org/widgets/echo-music/-/horizontal-auto.svg" alt="Translation status" />
+</a>
 
 ---
 

@@ -27,7 +27,7 @@ jobs:
 
       - name: Commit to funding-data branch
         run: |
-          # We check out the orphan branch 'funding-data'
+          # We check out the funding-data branch to append to it
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           
@@ -35,10 +35,12 @@ jobs:
           mv app/src/main/assets/funding.json /tmp/funding.json
           
           # Switch to funding-data branch, create it if it doesn't exist
-          git checkout --orphan funding-data || git checkout funding-data
-          
-          # Clear all other files from the branch to keep it clean
-          git rm -rf .
+          if git fetch origin funding-data:funding-data; then
+            git checkout funding-data
+          else
+            git checkout --orphan funding-data
+            git rm -rf .
+          fi
           
           # Bring the JSON file back
           mv /tmp/funding.json funding.json
@@ -47,5 +49,5 @@ jobs:
           git add funding.json
           git commit -m "Automated funding progress update" || exit 0
           
-          # Push to the funding-data branch
-          git push origin HEAD:funding-data --force
+          # Push to the funding-data branch without forcing
+          git push origin HEAD:funding-data

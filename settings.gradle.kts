@@ -29,6 +29,7 @@ include(
     ":shazamkit",
     ":artistvideo",
     ":jiosaavn",
+    ":smb",
     ":canvas",
     ":echomusiccanvas",
     ":applecanvas",

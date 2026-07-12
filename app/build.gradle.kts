@@ -321,6 +321,7 @@ dependencies {
     implementation(project(":echomusiccanvas"))
     implementation(project(":paxsenixlyrics"))
     implementation(project(":jiosaavn"))
+    implementation(project(":smb"))
     implementation(project(":unison"))
 
 

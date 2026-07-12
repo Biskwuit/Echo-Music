@@ -263,12 +263,12 @@ highlightKey: String? = null) {
             },
             title = stringResource(R.string.audio_quality),
             current = audioQuality,
-            values = listOf(AudioQuality.OPUS, AudioQuality.SAAVN),
+            values = listOf(AudioQuality.OPUS, AudioQuality.SAAVN, AudioQuality.LOSSLESS),
             valueText = {
                 when (it) {
                     AudioQuality.OPUS -> "Opus"
                     AudioQuality.SAAVN -> "Saavn (320kbps)"
-                    AudioQuality.LOSSLESS -> "Qobuz (Lossless)"
+                    AudioQuality.LOSSLESS -> "SMB (Lossless)"
                 }
             }
         )
@@ -288,7 +288,7 @@ highlightKey: String? = null) {
                 when (it) {
                     iad1tya.echo.music.constants.DownloadQuality.YOUTUBE -> "YouTube Music (AAC/Default)"
                     iad1tya.echo.music.constants.DownloadQuality.SAAVN -> "Saavn (320kbps)"
-                    iad1tya.echo.music.constants.DownloadQuality.LOSSLESS -> "Qobuz (Lossless)"
+                    iad1tya.echo.music.constants.DownloadQuality.LOSSLESS -> "SMB (Lossless)"
                 }
             }
         )
@@ -378,7 +378,7 @@ highlightKey: String? = null) {
                     }
                 }
             ) {
-                Text("Lossless (Qobuz) streams run through Echo Music's servers and cost real money to keep running. If you find it useful, please consider donating — it directly helps cover server costs.\n\n" + stringResource(R.string.lossless_audio_warning))
+                Text("Lossless (SMB) streams run through your own samba server and might not be accessible if you are not connected to your home wifi.\n\n" + stringResource(R.string.lossless_audio_warning))
             }
         }
 
@@ -407,7 +407,7 @@ highlightKey: String? = null) {
                             when (audioQuality) {
                                 AudioQuality.OPUS -> "Opus"
                                 AudioQuality.SAAVN -> "Saavn (320kbps)"
-                                AudioQuality.LOSSLESS -> "Qobuz (Lossless)"
+                                AudioQuality.LOSSLESS -> "SMB (Lossless)"
                             }
                         )
                     },
@@ -445,13 +445,20 @@ highlightKey: String? = null) {
                             when (downloadQuality) {
                                 iad1tya.echo.music.constants.DownloadQuality.YOUTUBE -> "YouTube Music (AAC/Default)"
                                 iad1tya.echo.music.constants.DownloadQuality.SAAVN -> "Saavn (320kbps)"
-                                iad1tya.echo.music.constants.DownloadQuality.LOSSLESS -> "Qobuz (Lossless)"
+                                iad1tya.echo.music.constants.DownloadQuality.LOSSLESS -> "SMB (Lossless)"
                             }
                         )
                     },
                     onClick = { showDownloadQualityDialog = true }
                 ))
 
+                add(Material3SettingsItem(
+    isHighlighted = (highlightKey == "SMB Music Share"),
+                    icon = painterResource(R.drawable.settings),
+                    title = { Text("SMB Music Share") },
+                    description = { Text("Configure your local network share for lossless audio") },
+                    onClick = { navController.navigate("settings/smb") }
+                ))
 
                 val isLosslessSelected = audioQuality == AudioQuality.LOSSLESS
                 add(Material3SettingsItem(
@@ -460,7 +467,7 @@ highlightKey: String? = null) {
                     title = { Text(stringResource(R.string.crossfade)) },
                     description = { 
                         if (isLosslessSelected) {
-                            Text("Crossfade is disabled while using Qobuz (Lossless)")
+                            Text("Crossfade is disabled while using SMB (Lossless)")
                         } else {
                             Text(stringResource(R.string.crossfade_desc)) 
                         }

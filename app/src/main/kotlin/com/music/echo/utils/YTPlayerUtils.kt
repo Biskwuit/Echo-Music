@@ -282,97 +282,75 @@ object YTPlayerUtils {
             return saavnAttempt ?: Result.failure(lastException ?: Exception("Saavn resolution failed"))
         }
 
-        suspend fun tryLossless(): Result<PlaybackData> {
-            var qobuzAttempt: Result<PlaybackData>? = null
-            var lastException: Exception? = null
-            for (attempt in 1..3) {
-                try {
-                    qobuzAttempt = kotlinx.coroutines.withTimeoutOrNull(15000L) {
-                        val metadata = playerResponseForMetadata(videoId).getOrNull()
-                        val title = knownTitle ?: metadata?.videoDetails?.title
-                        val author = knownArtist ?: metadata?.videoDetails?.author?.replace(" - Topic", "")
-                        if (title != null && author != null) {
-                            val qobuzClient = iad1tya.echo.music.utils.qobuz.QobuzApiClient()
-                            val queryArtist = author
-                            val queryTitle = title
-                            val durationSeconds = metadata?.videoDetails?.lengthSeconds?.toLongOrNull()
-                            val durationMs = knownDurationMs ?: (if (durationSeconds != null) durationSeconds * 1000L else null)
-                            
-                            var resolvedPlaybackData: PlaybackData? = null
-                            for (term in qobuzSearchTerms(queryArtist, queryTitle)) {
-                                val searchResult = runCatching { qobuzClient.search(term) }.getOrNull() ?: continue
-                                val candidates = searchResult.tracks?.items ?: continue
-                                val validCandidates = candidates.filter {
-                                    val streamable = it.streamable ?: false
-                                    val maxDepth = it.maximumBitDepth ?: 0
-                                    streamable && maxDepth >= 16
-                                }
-                                val sorted = validCandidates.sortedByDescending { confidence(queryArtist, queryTitle, durationMs, it) }
-                                for (candidate in sorted) {
-                                    if (confidence(queryArtist, queryTitle, durationMs, candidate) >= 0.5f) {
-                                        val downloadData = runCatching { qobuzClient.getFileUrl(candidate.id) }.getOrNull()
-                                        val url = downloadData?.url
-                                        if (url != null) {
-                                            val format = PlayerResponse.StreamingData.Format(
-                                                itag = 0,
-                                                mimeType = "audio/flac; codecs=\"flac\"",
-                                                bitrate = (candidate.maximumSamplingRate * 1000 * candidate.maximumBitDepth * 2).toInt(),
-                                                audioSampleRate = (candidate.maximumSamplingRate * 1000).toInt(),
-                                                contentLength = 0L,
-                                                url = url,
-                                                cipher = null,
-                                                signatureCipher = null,
-                                                audioQuality = "LOSSLESS",
-                                                fps = null,
-                                                width = null,
-                                                height = null,
-                                                quality = "lossless",
-                                                qualityLabel = null,
-                                                averageBitrate = null,
-                                                approxDurationMs = null,
-                                                audioChannels = null,
-                                                loudnessDb = null,
-                                                lastModified = null,
-                                                audioTrack = null
-                                            )
-                                            resolvedPlaybackData = PlaybackData(
-                                                audioConfig = null,
-                                                videoDetails = metadata?.videoDetails,
-                                                playbackTracking = null,
-                                                format = format,
-                                                streamUrl = url,
-                                                streamExpiresInSeconds = 3600
-                                            )
-                                            break
-                                        }
-                                    }
-                                }
-                                if (resolvedPlaybackData != null) {
-                                    break
-                                }
-                            }
-    
-                            if (resolvedPlaybackData != null) {
-                                return@withTimeoutOrNull Result.success(resolvedPlaybackData)
-                            } else {
-                                throw Exception("No streamable match resolved on Qobuz")
-                            }
-                        } else {
-                            throw Exception("Missing title or artist for lookup")
+        suspend fun trySmb(): Result<PlaybackData> {
+            return kotlinx.coroutines.withTimeoutOrNull(15000L) {
+                runCatching {
+                    val match = com.music.smb.SmbService.findByVideoId(videoId)
+                        ?: throw Exception("SMB: no file found for videoId=$videoId")
+
+                    val (remotePath, extension) = match
+                    Timber.tag(TAG).d("SMB match found: $remotePath")
+
+                    val metadata = playerResponseForMetadata(videoId).getOrNull()
+
+                    // Materialize the file locally so Media3's default HTTP/file data
+                    // source can play it without a custom SMB DataSource.
+                    val cacheDir = context?.cacheDir
+                        ?: throw Exception("SMB: no context available for cache")
+                    val localFile = java.io.File(cacheDir, "smb_cache/$videoId.$extension")
+                    localFile.parentFile?.mkdirs()
+
+                    if (!localFile.exists() || localFile.length() == 0L) {
+                        val copied = localFile.outputStream().use { out ->
+                            com.music.smb.SmbService.copyToLocal(remotePath, out)
+                        }
+                        if (!copied) {
+                            localFile.delete()
+                            throw Exception("SMB: failed to copy $remotePath locally")
                         }
                     }
-                    if (qobuzAttempt == null) {
-                        lastException = Exception("Timeout fetching Qobuz stream")
+
+                    val mimeType = when (extension.lowercase()) {
+                        "flac" -> "audio/flac; codecs=\"flac\""
+                        "wav"  -> "audio/wav; codecs=\"1\""
+                        "alac", "m4a" -> "audio/mp4; codecs=\"alac\""
+                        "opus" -> "audio/opus; codecs=\"opus\""
+                        else   -> "audio/mpeg; codecs=\"mp3\""
                     }
-                } catch (e: Exception) {
-                    lastException = e
+
+                    val format = PlayerResponse.StreamingData.Format(
+                        itag = 0,
+                        url = localFile.toURI().toString(),
+                        mimeType = mimeType,
+                        bitrate = 0,
+                        width = null,
+                        height = null,
+                        contentLength = localFile.length(),
+                        quality = "smb-lossless",
+                        fps = null,
+                        qualityLabel = null,
+                        averageBitrate = null,
+                        audioQuality = "LOSSLESS",
+                        approxDurationMs = null,
+                        audioSampleRate = null,
+                        audioChannels = null,
+                        loudnessDb = null,
+                        lastModified = null,
+                        signatureCipher = null,
+                        cipher = null,
+                        audioTrack = null
+                    )
+
+                    PlaybackData(
+                        audioConfig = metadata?.playerConfig?.audioConfig,
+                        videoDetails = metadata?.videoDetails,
+                        playbackTracking = metadata?.playbackTracking,
+                        format = format,
+                        streamUrl = localFile.toURI().toString(),
+                        streamExpiresInSeconds = Int.MAX_VALUE
+                    )
                 }
-                
-                if (qobuzAttempt != null && qobuzAttempt.isSuccess) {
-                    break
-                }
-            }
-            return qobuzAttempt ?: Result.failure(lastException ?: Exception("Qobuz resolution failed"))
+            } ?: Result.failure(Exception("Timeout resolving SMB stream"))
         }
 
         fun showToastMsg(msg: String) {
@@ -387,10 +365,10 @@ object YTPlayerUtils {
 
         return when (audioQuality) {
             AudioQuality.LOSSLESS -> {
-                val losslessRes = tryLossless()
+                val losslessRes = trySmb()
                 if (losslessRes.isSuccess) return losslessRes
 
-                Timber.tag(TAG).e("Qobuz resolution failed, falling back to Saavn")
+                Timber.tag(TAG).e("your SMB share resolution failed, falling back to Saavn")
                 if (!hasShownLosslessToast) {
                     hasShownLosslessToast = true
                     showToastMsg(if (isDownload) "Lossless download unavailable, falling back to Saavn (320kbps)" else "Lossless stream unavailable, falling back to Saavn (320kbps)")

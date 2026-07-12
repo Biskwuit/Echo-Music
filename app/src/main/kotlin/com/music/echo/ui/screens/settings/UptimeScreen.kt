@@ -60,8 +60,9 @@ highlightKey: String? = null) {
                 offlineMessage = { if (com.music.jiosaavn.DeviceRouter.hasServers()) "Server hits its daily limit, we'll get you tomorrow!" else "Please upload saavn.json to your server" }
             ),
             ServiceStatus(
-                "Qobuz",
-                { "https://qobuz.kennyy.com.br" }
+                "SMB",
+                { "https://qobuz.kennyy.com.br" },
+                offlineMessage = "Service Status not Working Yet"
             )
         )
     }

@@ -409,6 +409,13 @@ fun NavGraphBuilder.navigationBuilder(
     }
 
     composable(
+        route = "settings/smb?highlightKey={highlightKey}",
+        arguments = listOf(navArgument("highlightKey") { type = NavType.StringType; nullable = true })
+    ) { backStackEntry ->
+        iad1tya.echo.music.ui.screens.settings.SmbSettings(navController, scrollBehavior, highlightKey = backStackEntry.arguments?.getString("highlightKey"))
+    }
+
+    composable(
         route = "settings/storage?autoOpenExportPicker={autoOpenExportPicker}&highlightKey={highlightKey}",
         arguments = listOf(
             navArgument("autoOpenExportPicker") {

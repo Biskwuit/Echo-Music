@@ -1,8 +1,8 @@
 package iad1tya.echo.music.ui.screens.settings
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
@@ -23,29 +23,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.datastore.preferences.core.edit
 import androidx.navigation.NavController
-import iad1tya.echo.music.R
 import iad1tya.echo.music.LocalPlayerAwareWindowInsets
+import iad1tya.echo.music.R
+import iad1tya.echo.music.constants.SmbBasePathKey
 import iad1tya.echo.music.constants.SmbHostKey
+import iad1tya.echo.music.constants.SmbPasswordKey
 import iad1tya.echo.music.constants.SmbPortKey
 import iad1tya.echo.music.constants.SmbShareKey
-import iad1tya.echo.music.constants.SmbBasePathKey
 import iad1tya.echo.music.constants.SmbUsernameKey
-import iad1tya.echo.music.constants.SmbPasswordKey
-import iad1tya.echo.music.constants.SmbEnabledKey
 import iad1tya.echo.music.ui.component.IconButton
 import iad1tya.echo.music.ui.component.Material3SettingsGroup
 import iad1tya.echo.music.ui.component.Material3SettingsItem
 import iad1tya.echo.music.ui.utils.backToMain
-import iad1tya.echo.music.utils.dataStore
 import iad1tya.echo.music.utils.rememberPreference
 import kotlinx.coroutines.launch
-import androidx.compose.ui.focus.onFocusChanged
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,7 +55,6 @@ fun SmbSettings(
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
 
-    val (smbEnabled, onSmbEnabledChange) = rememberPreference(SmbEnabledKey, defaultValue = false)
     val (host, onHostChange) = rememberPreference(SmbHostKey, defaultValue = "")
     val (port, onPortChange) = rememberPreference(SmbPortKey, defaultValue = 445)
     val (share, onShareChange) = rememberPreference(SmbShareKey, defaultValue = "")
@@ -84,31 +80,16 @@ fun SmbSettings(
 
     Column(
         Modifier
-            .windowInsetsPadding(LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal))
+            .windowInsetsPadding(LocalPlayerAwareWindowInsets.current)
             .verticalScroll(scrollState)
             .padding(horizontal = 16.dp)
     ) {
+        Spacer(modifier = Modifier.height(16.dp))
+
         Material3SettingsGroup(
             scrollState = scrollState,
             title = "Local SMB Share",
             items = buildList {
-                add(Material3SettingsItem(
-                    icon = painterResource(R.drawable.graphic_eq),
-                    title = { Text("Enable SMB lossless source") },
-                    description = { Text("Use a local SMB/CIFS share for Lossless audio, matched by YouTube video ID filename") },
-                    trailingContent = {
-                        Switch(
-                            checked = smbEnabled,
-                            onCheckedChange = {
-                                onSmbEnabledChange(it)
-                                if (it) applyConfig() else com.music.smb.SmbService.disconnect()
-                            },
-                            colors = SwitchDefaults.colors()
-                        )
-                    },
-                    onClick = { onSmbEnabledChange(!smbEnabled) }
-                ))
-
                 add(Material3SettingsItem(
                     icon = painterResource(R.drawable.settings),
                     title = { Text("Host / IP") },
@@ -168,7 +149,7 @@ fun SmbSettings(
                                 testStatus = null
                             },
                             singleLine = true,
-                            placeholder = { Text("Xylo") },
+                            placeholder = { Text("ex : Musics") },
                             modifier = Modifier
                                 .padding(top = 4.dp)
                                 .onFocusChanged { focusState ->
@@ -192,7 +173,7 @@ fun SmbSettings(
                                 testStatus = null
                             },
                             singleLine = true,
-                            placeholder = { Text("swingmusic/music (optional)") },
+                            placeholder = { Text("echomusic/songs (optional)") },
                             modifier = Modifier
                                 .padding(top = 4.dp)
                                 .onFocusChanged { focusState ->
@@ -280,6 +261,8 @@ fun SmbSettings(
                 ))
             }
         )
+
+        Spacer(modifier = Modifier.height(24.dp))
     }
 
     TopAppBar(
@@ -291,6 +274,7 @@ fun SmbSettings(
             ) {
                 Icon(painterResource(R.drawable.arrow_back), contentDescription = null)
             }
-        }
+        },
+        scrollBehavior = scrollBehavior
     )
 }

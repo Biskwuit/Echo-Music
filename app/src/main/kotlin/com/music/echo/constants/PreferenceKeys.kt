@@ -105,7 +105,6 @@ val SmbShareKey = stringPreferencesKey("smb_share")
 val SmbBasePathKey = stringPreferencesKey("smb_base_path")
 val SmbUsernameKey = stringPreferencesKey("smb_username")
 val SmbPasswordKey = stringPreferencesKey("smb_password")
-val SmbEnabledKey = booleanPreferencesKey("smb_enabled")
 
 val ShowAudioFallbackToastKey = booleanPreferencesKey("show_audio_fallback_toast")
 val AudioQualityKey = stringPreferencesKey("audioQuality")

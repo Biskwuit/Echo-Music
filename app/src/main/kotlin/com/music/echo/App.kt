@@ -115,18 +115,16 @@ class App : Application(), SingletonImageLoader.Factory {
             }
         }
 
-        if (settings[SmbEnabledKey] == true) {
-            com.music.smb.SmbService.configure(
-                com.music.smb.SmbConfig(
-                    host = settings[SmbHostKey].orEmpty(),
-                    port = settings[SmbPortKey] ?: 445,
-                    shareName = settings[SmbShareKey].orEmpty(),
-                    basePath = settings[SmbBasePathKey].orEmpty(),
-                    username = settings[SmbUsernameKey].orEmpty(),
-                    password = settings[SmbPasswordKey].orEmpty()
-                )
+        com.music.smb.SmbService.configure(
+            com.music.smb.SmbConfig(
+                host = settings[SmbHostKey].orEmpty(),
+                port = settings[SmbPortKey] ?: 445,
+                shareName = settings[SmbShareKey].orEmpty(),
+                basePath = settings[SmbBasePathKey].orEmpty(),
+                username = settings[SmbUsernameKey].orEmpty(),
+                password = settings[SmbPasswordKey].orEmpty()
             )
-        }
+        )
 
         YouTube.locale = YouTubeLocale(
             gl = settings[ContentCountryKey]?.takeIf { it != SYSTEM_DEFAULT }

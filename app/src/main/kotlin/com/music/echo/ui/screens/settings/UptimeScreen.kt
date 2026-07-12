@@ -60,7 +60,7 @@ highlightKey: String? = null) {
                 offlineMessage = { if (com.music.jiosaavn.DeviceRouter.hasServers()) "Server hits its daily limit, we'll get you tomorrow!" else "Please upload saavn.json to your server" }
             ),
             ServiceStatus(
-                "Qobuz (Not Good Endpoint)",
+                "Qobuz (Wrong Endpoint)",
                 { "https://qobuz.kennyy.com.br" }
             )
         )

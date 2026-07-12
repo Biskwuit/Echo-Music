@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicReference
 
 /**
  * Locates and streams music files from an SMB/CIFS shared folder, matched
- * purely by YouTube video ID filename, e.g. "aEAhZpF-bCA.flac".
+ * via YouTube video ID filename, e.g. "aEAhZpF-bCA.flac".
  */
 object SmbService {
 

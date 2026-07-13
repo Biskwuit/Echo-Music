@@ -30,7 +30,7 @@ android {
 
 
     defaultConfig {
-        applicationId = "iad1tya.echo.music"
+        applicationId = "biskwuit.echo.music"
         minSdk = 26
         targetSdk = 36
         versionCode = 519

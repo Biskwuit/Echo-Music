@@ -148,6 +148,12 @@
     native <methods>;
 }
 
+## mbassy optional Java EL support (not present on Android) — used by smbj/mbassy event bus
+-dontwarn javax.el.**
+
+## smbj optional GSSAPI/Kerberos support (not present on Android)
+-dontwarn org.ietf.jgss.**
+
 ## Kotlin Reflection Fix
 -keep class kotlin.Metadata { *; }
 -keep class kotlin.reflect.** { *; }
